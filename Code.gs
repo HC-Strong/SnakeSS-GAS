@@ -1,4 +1,21 @@
-// Hello World!
+  var snakeHead = [3,3];
+  var snakeLength = 1;
+
+var fooAr = ["cluck1", "cluck2", "cluck3"];
+var fooStr = JSON.stringify(fooAr);
+
+   // Sets several script properties, then retrieves them and logs them.
+ var scriptProperties = PropertiesService.getScriptProperties();
+ scriptProperties.setProperties({
+   'cow': 'mooo',
+   'sheep': 'baaa',
+   'chicken': fooStr
+ });
+
+
+
+var animalSounds = scriptProperties.getProperties();
+
 
 function onOpen(){
   var headRow = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").getValue();
@@ -7,8 +24,20 @@ function onOpen(){
   SpreadsheetApp.getActiveSpreadsheet().getRangeByName("GameBoard").setBackground("white");
   SpreadsheetApp.getActiveSheet().getRange(headRow, headCol).setBackground("red");
   
-  //var snakeHead = [3,3];
-  //var snakeLength = 1;
+  snakeLength = 5;
+  
+
+  var foofooStr = scriptProperties.getProperty('chicken');
+  
+   var foofooAr = JSON.parse(foofooStr);
+  
+     Logger.log(foofooAr[1]);
+
+ for (var kind in animalSounds) {
+   Logger.log('A %s goes %s!', kind, animalSounds[kind]);
+ }
+  
+
 }
 
 function onEdit(e){
@@ -37,8 +66,12 @@ function onEdit(e){
         break;
     default:
         //Browser.msgBox("nope");
-}
-   Browser.msgBox(snakeLength);
+      
+      
+      
+      
+   }
+   Browser.msgBox("The snake is " + snakeLength + " cells long!");
   
 }
 

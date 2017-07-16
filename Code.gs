@@ -2,7 +2,7 @@
 
 
 var snakeHead = [3,3];
-  var snakeLength = 1;
+//  var snakeLength = 1;
 
 var snake = [[7,7], [8,7]] //row, col
 
@@ -11,8 +11,7 @@ var snake = [[7,7], [8,7]] //row, col
 var scriptProperties = PropertiesService.getScriptProperties();
 
 scriptProperties.setProperties({
-  'snake' : JSON.stringify(snake),
-  'snakeLength' : 1
+  'snake' : JSON.stringify(snake)
 });
 
 
@@ -20,6 +19,11 @@ scriptProperties.setProperties({
   var snakeLength = JSON.parse(scriptProperties.getProperty('snakeLength'));
 
 function onOpen(){
+  
+scriptProperties.setProperties({
+  'snakeLength' : 1
+});
+  
   var headRow = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").getValue();
   var headCol = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").getValue();
   

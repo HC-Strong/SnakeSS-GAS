@@ -1,17 +1,13 @@
 // can just trim the snake array to snake length each time it moves to keep it from leaving a trail
 
-
-var snakeHead = [3,3];
-
-var snake = [[7,7]] //row, col
-
+var initPos = [[7,7]] //row, col
 
 
 
 var scriptProperties = PropertiesService.getScriptProperties();
 
 scriptProperties.setProperties({
-  'snake' : JSON.stringify(snake)
+  'snake' : JSON.stringify(initPos)
 });
 
 
@@ -24,15 +20,18 @@ scriptProperties.setProperties({
   'snakeLength' : 1
 });
   
-  scriptProperties.setProperties({
-  'snakeCells' : JSON.stringify(snake)
+scriptProperties.setProperties({
+  'snakeCells' : JSON.stringify(initPos)
 });
   
-  var headRow = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").getValue();
-  var headCol = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").getValue();
   
+  //// Reset snake position
+  SpreadsheetApp.getActiveSpreadsheet().getRangeByName("headRow").setValue(initPos[0][0]);
+  SpreadsheetApp.getActiveSpreadsheet().getRangeByName("headCol").setValue(initPos[0][1]);
+
+  //// Reset colors
   SpreadsheetApp.getActiveSpreadsheet().getRangeByName("GameBoard").setBackground("white");
-  SpreadsheetApp.getActiveSheet().getRange(headRow, headCol).setBackground("red");
+  SpreadsheetApp.getActiveSheet().getRange(initPos[0][0], initPos[0][1]).setBackground("red");
   
   Logger.log("end of onOpen");
 
@@ -43,12 +42,10 @@ function onEdit(e){
   
   snakeCells = JSON.parse(scriptProperties.getProperty('snakeCells'));
   snakeLength = scriptProperties.getProperty('snakeLength');
- // Browser.msgBox("just retreived snakeLength and it is " + snakeLength);
   
   var sheet = SpreadsheetApp.getActiveSheet();
   
-  var headRow = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").getValue();
-  var headCol = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").getValue();
+  var headCell = [SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").getValue(), SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").getValue()];
   
   var direction = [0,0];
   
@@ -73,39 +70,44 @@ function onEdit(e){
         //Browser.msgBox("nope");
     }
         
-  snakeMove(direction, snakeLength, headRow, headCol);
+  headCell = snakeMove(direction, snakeLength, headCell);
   
   //// Increase snake length by 1      -- eventually needs to be dependent on something other than moving
-  snakeLength++;
-  scriptProperties.setProperties({
-  'snakeLength' : snakeLength
-});
+  if(snakeLength < 5) {            /// currently setting a short max length since it grows each move
+    snakeLength++;
+    scriptProperties.setProperties({
+       'snakeLength' : snakeLength
+    });
+  }
+
   
   //// Add new cell to the snake's list of cells
-  Browser.msgBox("headRow is " + headRow + " and headCol is " + headCol + ".");
-  var test = [headRow, headCol];
-  snakeCells = snakeCells.concat(test);
-  
-  
+  snakeCells = headCell.concat(snakeCells);
   Browser.msgBox("The snake is " + snakeLength + " cells long!        The snake is comprised of the following cells: " + snakeCells + ". Is that logical?");
+  if(snakeCells.length/2 > snakeLength) {
+    Browser.msgBox(snakeCells.length/2);
+  }
+  
+  
+  //// Save new snake list of cells
+  scriptProperties.setProperties({
+     'snakeCells' : JSON.stringify(snakeCells)
+  });
   
 }
 
-function snakeMove(direction, snakeLength, headRow, headCol){
-
-  //Browser.msgBox("Initialized headRow is " + headRow + " and headCol is " + headCol);
+function snakeMove(direction, snakeLength, headCell){
   
   // Calculate head position after movement
-  headRow = headRow + direction[0];
-  headCol = headCol + direction[1];
-  Browser.msgBox("New headRow is " + headRow + " and headCol is " + headCol);
+  headCell[0] = headCell[0] + direction[0];
+  headCell[1] = headCell[1] + direction[1];
   
   // Set snake head position in the cells on the sheet
-  SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").setValue(headRow);
-  SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").setValue(headCol);
+  SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").setValue(headCell[0]);
+  SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").setValue(headCell[1]);
   
   // Color new head position
-  SpreadsheetApp.getActiveSheet().getRange(headRow, headCol).setBackground("red");
+  SpreadsheetApp.getActiveSheet().getRange(headCell[0], headCell[1]).setBackground("red");
   
 
   
@@ -116,30 +118,8 @@ function snakeMove(direction, snakeLength, headRow, headCol){
   // Here's what I was using to color the bg white again (at the time I was resetting headRow and headCol last so they'd refer to the old one and this worked for a length 1 snake
   //        SpreadsheetApp.getActiveSheet().getRange(headRow, headCol).setBackground("white");
  
-  return headRow;
-  return headCol;
+  return headCell;
 }
-
-
-function moveUp2(snakeLength){
-  
-    Logger.log("Snake length is %s cells long and the snake info is %s", snakeLength, snake[1][0]);
-  
-  var headRow = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").getValue();
-  var headCol = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").getValue();
-  
-      SpreadsheetApp.getActiveSheet().getRange(headRow, headCol).setBackground("white");
-      SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").setValue(headRow-1);
-      SpreadsheetApp.getActiveSheet().getRange(headRow-1, headCol).setBackground("red");
-    snakeLength++;
- // Browser.msgBox("storing property snakeLength as " + snakeLength);
-  scriptProperties.setProperty('snakeLength', snakeLength);
-  
-  return snakeLength;
-}
-
-
-
 
 
 // should move curser back to same cell after eachedit and reset cell

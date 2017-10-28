@@ -2,9 +2,9 @@
 
 
 var snakeHead = [3,3];
-//  var snakeLength = 1;
 
-var snake = [[7,7], [8,7]] //row, col
+var snake = [[7,7]] //row, col
+
 
 
 
@@ -24,6 +24,10 @@ scriptProperties.setProperties({
   'snakeLength' : 1
 });
   
+  scriptProperties.setProperties({
+  'snakeCells' : JSON.stringify(snake)
+});
+  
   var headRow = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").getValue();
   var headCol = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").getValue();
   
@@ -37,7 +41,7 @@ scriptProperties.setProperties({
 
 function onEdit(e){
   
-  snake = JSON.parse(scriptProperties.getProperty('snake'));
+  snakeCells = JSON.parse(scriptProperties.getProperty('snakeCells'));
   snakeLength = scriptProperties.getProperty('snakeLength');
  // Browser.msgBox("just retreived snakeLength and it is " + snakeLength);
   
@@ -69,23 +73,32 @@ function onEdit(e){
         //Browser.msgBox("nope");
     }
         
-  snakeMove(direction, snakeLength);
+  snakeMove(direction, snakeLength, headRow, headCol);
+  
+  //// Increase snake length by 1      -- eventually needs to be dependent on something other than moving
   snakeLength++;
-  Browser.msgBox("The snake is " + snakeLength + " cells long!");
+  scriptProperties.setProperties({
+  'snakeLength' : snakeLength
+});
+  
+  //// Add new cell to the snake's list of cells
+  Browser.msgBox("headRow is " + headRow + " and headCol is " + headCol + ".");
+  var test = [headRow, headCol];
+  snakeCells = snakeCells.concat(test);
+  
+  
+  Browser.msgBox("The snake is " + snakeLength + " cells long!        The snake is comprised of the following cells: " + snakeCells + ". Is that logical?");
   
 }
 
-function snakeMove(direction, snakeLength){
-  
-  // Get current head position
-  var headRow = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").getValue();
-  var headCol = SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").getValue();
+function snakeMove(direction, snakeLength, headRow, headCol){
+
   //Browser.msgBox("Initialized headRow is " + headRow + " and headCol is " + headCol);
   
   // Calculate head position after movement
   headRow = headRow + direction[0];
   headCol = headCol + direction[1];
-  //Browser.msgBox("New headRow is " + headRow + " and headCol is " + headCol);
+  Browser.msgBox("New headRow is " + headRow + " and headCol is " + headCol);
   
   // Set snake head position in the cells on the sheet
   SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").setValue(headRow);
@@ -102,7 +115,9 @@ function snakeMove(direction, snakeLength){
   
   // Here's what I was using to color the bg white again (at the time I was resetting headRow and headCol last so they'd refer to the old one and this worked for a length 1 snake
   //        SpreadsheetApp.getActiveSheet().getRange(headRow, headCol).setBackground("white");
-  
+ 
+  return headRow;
+  return headCol;
 }
 
 

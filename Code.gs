@@ -39,13 +39,13 @@ scriptProperties.setProperties({
 }
 
 function onEdit(e){
-  var sheet = SpreadsheetApp.getActiveSheet();
-  if(sheet.getName() == "GameBoard" ){
+  var curSheet = SpreadsheetApp.getActiveSheet();
+  if(curSheet.getName() == "GameBoard" ){
     snakeCells = JSON.parse(scriptProperties.getProperty('snakeCells'));
     snakeLength = scriptProperties.getProperty('snakeLength');
 
-
-    var headCell = [sheet.getRangeByName("HeadRow").getValue(), SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").getValue()];
+    var curSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    var headCell = [curSpreadsheet.getRangeByName("HeadRow").getValue(), curSpreadsheet.getRangeByName("HeadCol").getValue()];
     var direction = [0,0];
 
     switch(e.value) {
@@ -91,7 +91,7 @@ function onEdit(e){
        'snakeCells' : JSON.stringify(snakeCells)
     });
   } else {
-    browser.msgBox("wrong sheet!");
+    Browser.msgBox("wrong sheet!");
   }
 }
 

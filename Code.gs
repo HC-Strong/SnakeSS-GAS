@@ -39,62 +39,62 @@ scriptProperties.setProperties({
 }
 
 function onEdit(e){
-  
-  snakeCells = JSON.parse(scriptProperties.getProperty('snakeCells'));
-  snakeLength = scriptProperties.getProperty('snakeLength');
-  
   var sheet = SpreadsheetApp.getActiveSheet();
-  
-  var headCell = [SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadRow").getValue(), SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").getValue()];
-  
-  var direction = [0,0];
-  
-    switch(e.value) {
-    case "w":
-        //Browser.msgBox("up");
-        direction = [-1,0];
-        break;
-    case "s":
-        //Browser.msgBox("down");
-        direction = [1,0];
-        break;
-    case "a":
-        //Browser.msgBox("left");
-        direction = [0,-1];
-        break;      
-    case "d":
-        //Browser.msgBox("right");
-        direction = [0,1];
-        break;
-    default:
-        //Browser.msgBox("nope");
-    }
-        
-  headCell = snakeMove(direction, snakeLength, headCell);
-  
-  //// Increase snake length by 1      -- eventually needs to be dependent on something other than moving
-  if(snakeLength < 5) {            /// currently setting a short max length since it grows each move
-    snakeLength++;
-    scriptProperties.setProperties({
-       'snakeLength' : snakeLength
-    });
-  }
+  if(sheet.getName() == "GameBoard" ){
+    snakeCells = JSON.parse(scriptProperties.getProperty('snakeCells'));
+    snakeLength = scriptProperties.getProperty('snakeLength');
 
-  
-  //// Add new cell to the snake's list of cells
-  snakeCells = headCell.concat(snakeCells);
-  Browser.msgBox("The snake is " + snakeLength + " cells long!        The snake is comprised of the following cells: " + snakeCells + ". Is that logical?");
-  if(snakeCells.length/2 > snakeLength) {
-    Browser.msgBox(snakeCells.length/2);
+
+    var headCell = [sheet.getRangeByName("HeadRow").getValue(), SpreadsheetApp.getActiveSpreadsheet().getRangeByName("HeadCol").getValue()];
+    var direction = [0,0];
+
+    switch(e.value) {
+      case "w":
+          //Browser.msgBox("up");
+          direction = [-1,0];
+          break;
+      case "s":
+          //Browser.msgBox("down");
+          direction = [1,0];
+          break;
+      case "a":
+          //Browser.msgBox("left");
+          direction = [0,-1];
+          break;      
+      case "d":
+          //Browser.msgBox("right");
+          direction = [0,1];
+          break;
+      default:
+          //Browser.msgBox("nope");
+      }
+
+    headCell = snakeMove(direction, snakeLength, headCell);
+
+    //// Increase snake length by 1      -- eventually needs to be dependent on something other than moving
+    if(snakeLength < 5) {            /// currently setting a short max length since it grows each move
+      snakeLength++;
+      scriptProperties.setProperties({
+         'snakeLength' : snakeLength
+      });
+    }
+
+    //// Add new cell to the snake's list of cells
+    snakeCells = headCell.concat(snakeCells);
+    Browser.msgBox("The snake is " + snakeLength + " cells long!        The snake is comprised of the following cells: " + snakeCells + ". Is that logical?");
+    if(snakeCells.length/2 > snakeLength) {
+      Browser.msgBox(snakeCells.length/2);
+    }
+
+    //// Save new snake list of cells
+    scriptProperties.setProperties({
+       'snakeCells' : JSON.stringify(snakeCells)
+    });
+  } else {
+    browser.msgBox("wrong sheet!");
   }
-  
-  
-  //// Save new snake list of cells
-  scriptProperties.setProperties({
-     'snakeCells' : JSON.stringify(snakeCells)
-  });
-  
 }
+
 
 function snakeMove(direction, snakeLength, headCell){
   

@@ -42,6 +42,7 @@ function onEdit(e){
   var curSheet = SpreadsheetApp.getActiveSheet();
   if(curSheet.getName() == "GameBoard" ){
     snakeCells = JSON.parse(scriptProperties.getProperty('snakeCells'));
+                                                                                  Logger.log("Point 1 is " + snakeCells);
     snakeLength = scriptProperties.getProperty('snakeLength');
 
     var curSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -72,7 +73,7 @@ function onEdit(e){
     headCell = snakeMove(direction, snakeLength, headCell);
 
     //// Increase snake length by 1      -- eventually needs to be dependent on something other than moving
-    if(snakeLength < 5) {            /// currently setting a short max length since it grows each move
+    if(snakeLength < 3) {            /// currently setting a short max length since it grows each move
       snakeLength++;
       scriptProperties.setProperties({
          'snakeLength' : snakeLength
@@ -80,23 +81,29 @@ function onEdit(e){
     }
 
     //// Add new cell to the snake's list of cells
+    Logger.log("Point 3 is " + snakeCells);
     snakeCells = headCell.concat(snakeCells);
-    Browser.msgBox("The snake is " + snakeLength + " cells long!        The snake is comprised of the following cells: " + snakeCells + ". Is that logical?");
+                                                                               //Browser.msgBox("The snake is " + snakeLength + " cells long!        The snake is comprised of the following cells: " + snakeCells + ". Is that logical?");
+                                                                                 Logger.log("Point 4 is " + snakeCells);
     if(snakeCells.length/2 > snakeLength) {
-      Browser.msgBox(snakeCells.length/2);
+                                                                               //Browser.msgBox(snakeCells.length/2);
     }
-
+    snakeCells = trimSnake(snakeLength, snakeCells);
+                                                                                 //Browser.msgBox("After a trim, the snake is " + snakeLength + " cells long!        The snake is comprised of the following cells: " + snakeCells + ". Is that logical?");
+                                                                                 Logger.log("Point 5 is " + snakeCells);
+    
     //// Save new snake list of cells
     scriptProperties.setProperties({
        'snakeCells' : JSON.stringify(snakeCells)
     });
   } else {
-    Browser.msgBox("wrong sheet!");
+    //Browser.msgBox("wrong sheet!");
   }
 }
 
 
-function snakeMove(direction, snakeLength, headCell){
+function snakeMove(direction, snakeLength, headCell)
+{
   
   // Calculate head position after movement
   headCell[0] = headCell[0] + direction[0];
@@ -109,17 +116,31 @@ function snakeMove(direction, snakeLength, headCell){
   // Color new head position
   SpreadsheetApp.getActiveSheet().getRange(headCell[0], headCell[1]).setBackground("red");
   
-
-  
   // Should probably deal with the snake's length here, but I'll get to that
              // Could go through the array of the snake's cells and for any with an array number longer than the snakeLength, turn the cell white. Then when it's gone through all, trim the array
-  
   
   // Here's what I was using to color the bg white again (at the time I was resetting headRow and headCol last so they'd refer to the old one and this worked for a length 1 snake
   //        SpreadsheetApp.getActiveSheet().getRange(headRow, headCol).setBackground("white");
  
   return headCell;
 }
+
+
+
+
+function trimSnake(length, cells) {
+  var row = cells[(2*length)];
+  var col = cells[(2*length)+1];
+  var range = SpreadsheetApp.getActiveSheet().getRange(row, col);
+
+  range.setBackground("pink");
+  
+  cells.length = length*2;
+
+  return cells;
+}
+
+
 
 
 // should move curser back to same cell after eachedit and reset cell

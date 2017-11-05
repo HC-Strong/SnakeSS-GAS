@@ -42,7 +42,7 @@ function onEdit(e){
   var curSheet = SpreadsheetApp.getActiveSheet();
   if(curSheet.getName() == "GameBoard" ){
     snakeCells = JSON.parse(scriptProperties.getProperty('snakeCells'));
-                                                                                  Logger.log("Point 1 is " + snakeCells);
+                                                                                  Logger.log("At point 1 the cells in the snake are " + snakeCells);
     snakeLength = scriptProperties.getProperty('snakeLength');
 
     var curSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -81,16 +81,20 @@ function onEdit(e){
     }
 
     //// Add new cell to the snake's list of cells
-    Logger.log("Point 3 is " + snakeCells);
-    snakeCells = headCell.concat(snakeCells);
+    Logger.log("At point 2 the cells in the snake are " + snakeCells);
+    var temp = [headCell];
+    //Browser.msgBox(temp);
+    snakeCells = temp.concat(snakeCells);
                                                                                //Browser.msgBox("The snake is " + snakeLength + " cells long!        The snake is comprised of the following cells: " + snakeCells + ". Is that logical?");
-                                                                                 Logger.log("Point 4 is " + snakeCells);
-    if(snakeCells.length/2 > snakeLength) {
-                                                                               //Browser.msgBox(snakeCells.length/2);
-    }
-    snakeCells = trimSnake(snakeLength, snakeCells);
+                                                                                 Logger.log("At point 3 the cells in the snake are " + snakeCells);
+    if(snakeCells.length > snakeLength) {
+                                                                                       Logger.log("Snake is being trimmed to length");
+       snakeCells = trimSnake(snakeLength, snakeCells);
+    } else {
+                                                                                 Logger.log("Snake is not at max length. It's length is " + snakeLength); 
+    }    
                                                                                  //Browser.msgBox("After a trim, the snake is " + snakeLength + " cells long!        The snake is comprised of the following cells: " + snakeCells + ". Is that logical?");
-                                                                                 Logger.log("Point 5 is " + snakeCells);
+                                                                                 Logger.log("At point 6 the cells in the snake are " + snakeCells + " (a length of " + snakeCells.length + ") and snake length is " + snakeLength);
     
     //// Save new snake list of cells
     scriptProperties.setProperties({
@@ -129,13 +133,15 @@ function snakeMove(direction, snakeLength, headCell)
 
 
 function trimSnake(length, cells) {
-  var row = cells[(2*length)];
-  var col = cells[(2*length)+1];
-  var range = SpreadsheetApp.getActiveSheet().getRange(row, col);
+                                                                                   Logger.log("At point 4 the cells in the snake are " + cells);
+
+  var toErase = cells[(length*1)];
+  var range = SpreadsheetApp.getActiveSheet().getRange(toErase[0], toErase[1]);
 
   range.setBackground("pink");
   
-  cells.length = length*2;
+  cells.length = length;
+                                                                                     Logger.log("At point 5 the cells in the snake are " + cells);
 
   return cells;
 }
